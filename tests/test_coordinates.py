@@ -2,15 +2,15 @@ import pytest
 import numpy as np
 
 from odysim.coordinates import (
-    llh_array_to_sch_array, sch_array_to_llh_array, localRad
+    llh_array_to_sch_array, sch_array_to_llh_array, WGS84
 )
 
 
 @pytest.fixture
 def input_peg():
-    peg_lat = np.radians(45)
-    peg_lon = np.radians(45)
-    peg_hdg = np.radians(0)
+    peg_lat = np.array([45])
+    peg_lon = np.array([45])
+    peg_hdg = np.array([0])
     return peg_lat, peg_lon, peg_hdg
 
 @pytest.fixture
@@ -50,8 +50,8 @@ def input_sch():
 def test_llh_array_to_sch_array(input_llh, input_peg, expected_sch):
     lat, lon, h = input_llh
     peg_lat, peg_lon, peg_hdg = input_peg
-    peg_localRadius = localRad(peg_hdg, peg_lat)
-    s, c, h = llh_array_to_sch_array(lat, lon, h, peg_lat, peg_lon, peg_hdg, peg_localRadius)
+    peg_local_radius = WGS84.local_radius(peg_hdg, peg_lat)
+    s, c, h = llh_array_to_sch_array(lat, lon, h, peg_lat, peg_lon, peg_hdg, peg_local_radius)
     expected_s, expected_c, expected_h = expected_sch
     assert np.allclose(s, expected_s, atol=1e-6)
     assert np.allclose(c, expected_c, atol=1e-6)
@@ -61,8 +61,8 @@ def test_llh_array_to_sch_array(input_llh, input_peg, expected_sch):
 def test_sch_array_to_llh_array(input_sch, input_peg, expected_llh):
     s, c, h = input_sch
     peg_lat, peg_lon, peg_hdg = input_peg
-    peg_localRadius = localRad(peg_hdg, peg_lat)
-    lat, lon, h = sch_array_to_llh_array(s, c, h, peg_lat, peg_lon, peg_hdg, peg_localRadius)
+    peg_local_radius = WGS84.local_radius(peg_hdg, peg_lat)
+    lat, lon, h = sch_array_to_llh_array(s, c, h, peg_lat, peg_lon, peg_hdg, peg_local_radius)
     expected_lat, expected_lon, expected_h = expected_llh
     assert np.allclose(lat, expected_lat, atol=1e-6)
     assert np.allclose(lon, expected_lon, atol=1e-6)
